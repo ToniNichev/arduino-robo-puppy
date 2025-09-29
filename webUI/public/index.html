@@ -20,7 +20,7 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             background: white;
             border-radius: 20px;
@@ -134,7 +134,7 @@
 
         .controls-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: 25px;
         }
 
@@ -186,7 +186,7 @@
         .leg-controls-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            gap: 15px;
         }
 
         .joint-control {
@@ -244,6 +244,22 @@
         }
 
         @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .header p {
+                font-size: 1em;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
             .connection-controls {
                 flex-direction: column;
                 align-items: stretch;
@@ -253,6 +269,21 @@
                 grid-template-columns: 1fr;
             }
             
+            .leg-controls {
+                grid-template-columns: 1fr;
+            }
+            
+            .leg-controls-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .control-panel {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
             .leg-controls {
                 grid-template-columns: 1fr;
             }
