@@ -243,6 +243,177 @@
             white-space: pre-wrap;
         }
 
+        /* Sequence Builder Styles */
+        .sequence-builder {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .sequence-controls {
+            display: grid;
+            grid-template-columns: 1fr auto auto auto;
+            gap: 10px;
+            align-items: end;
+        }
+
+        .sequence-controls select,
+        .sequence-controls input {
+            padding: 10px;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .sequence-controls button {
+            padding: 10px 15px;
+            font-size: 14px;
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .sequence-controls button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+
+        .sequence-list h4 {
+            color: #495057;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .sequence-steps {
+            background: white;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            min-height: 100px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .empty-sequence {
+            color: #6c757d;
+            text-align: center;
+            font-style: italic;
+            margin: 20px 0;
+        }
+
+        .sequence-step {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            margin: 5px 0;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 4px solid #007bff;
+        }
+
+        .sequence-step .step-info {
+            flex: 1;
+        }
+
+        .sequence-step .step-command {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .sequence-step .step-delay {
+            font-size: 12px;
+            color: #6c757d;
+        }
+
+        .sequence-step .step-remove {
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .sequence-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+        }
+
+        .sequence-actions button {
+            padding: 12px;
+            font-size: 14px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .clear-btn {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+        }
+
+        .save-btn {
+            background: linear-gradient(135deg, #ffc107, #e0a800);
+            color: #212529;
+        }
+
+        .load-btn {
+            background: linear-gradient(135deg, #17a2b8, #138496);
+            color: white;
+        }
+
+        .execute-btn {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+
+        .sequence-actions button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .sequence-presets {
+            border-top: 2px solid #dee2e6;
+            padding-top: 20px;
+        }
+
+        .sequence-presets h4 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .preset-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+        }
+
+        .preset-btn {
+            padding: 12px;
+            font-size: 14px;
+            background: linear-gradient(135deg, #6f42c1, #5a32a3);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .preset-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
         @media (max-width: 768px) {
             body {
                 padding: 10px;
@@ -280,6 +451,19 @@
             
             .control-panel {
                 padding: 20px;
+            }
+            
+            .sequence-controls {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .sequence-actions {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .preset-buttons {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
 
@@ -394,6 +578,60 @@
                                     <input type="number" id="leg3Knee" min="-90" max="90" value="0">
                                     <button onclick="moveLeg(3, 'knee')">Move</button>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Command Sequences -->
+                <div class="control-panel">
+                    <h3>🎭 Command Sequences</h3>
+                    <div class="sequence-builder">
+                        <div class="sequence-controls">
+                            <select id="commandSelect">
+                                <option value="">Select Command...</option>
+                                <option value="stand">Stand</option>
+                                <option value="sit">Sit</option>
+                                <option value="walk">Walk</option>
+                                <option value="neutral">Neutral</option>
+                                <option value="down">Down</option>
+                                <optgroup label="Leg Commands">
+                                    <option value="leg0hip">Leg 0 Hip</option>
+                                    <option value="leg0knee">Leg 0 Knee</option>
+                                    <option value="leg1hip">Leg 1 Hip</option>
+                                    <option value="leg1knee">Leg 1 Knee</option>
+                                    <option value="leg2hip">Leg 2 Hip</option>
+                                    <option value="leg2knee">Leg 2 Knee</option>
+                                    <option value="leg3hip">Leg 3 Hip</option>
+                                    <option value="leg3knee">Leg 3 Knee</option>
+                                </optgroup>
+                            </select>
+                            <input type="number" id="angleInput" placeholder="Angle (-90 to 90)" min="-90" max="90" style="display: none;">
+                            <input type="number" id="delayInput" placeholder="Delay (ms)" min="0" value="1000" step="100">
+                            <button onclick="addToSequence()">➕ Add</button>
+                        </div>
+                        
+                        <div class="sequence-list">
+                            <h4>Sequence Steps:</h4>
+                            <div id="sequenceSteps" class="sequence-steps">
+                                <p class="empty-sequence">No commands in sequence</p>
+                            </div>
+                        </div>
+                        
+                        <div class="sequence-actions">
+                            <button onclick="clearSequence()" class="clear-btn">🗑️ Clear</button>
+                            <button onclick="saveSequence()" class="save-btn">💾 Save</button>
+                            <button onclick="loadSequence()" class="load-btn">📁 Load</button>
+                            <button onclick="executeSequence()" class="execute-btn">▶️ Execute</button>
+                        </div>
+                        
+                        <div class="sequence-presets">
+                            <h4>Quick Presets:</h4>
+                            <div class="preset-buttons">
+                                <button onclick="loadPreset('dance')" class="preset-btn">💃 Dance</button>
+                                <button onclick="loadPreset('greeting')" class="preset-btn">👋 Greeting</button>
+                                <button onclick="loadPreset('exercise')" class="preset-btn">🏃 Exercise</button>
+                                <button onclick="loadPreset('wave')" class="preset-btn">👋 Wave</button>
                             </div>
                         </div>
                     </div>
@@ -555,6 +793,288 @@
             const timestamp = new Date().toLocaleTimeString();
             responseLog.textContent += `[${timestamp}] ${message}\n`;
             responseLog.scrollTop = responseLog.scrollHeight;
+        }
+
+        // Command Sequence Variables
+        let currentSequence = [];
+        let isExecuting = false;
+
+        // Command Select Change Handler
+        document.getElementById('commandSelect').addEventListener('change', function() {
+            const angleInput = document.getElementById('angleInput');
+            const command = this.value;
+            
+            // Show angle input for leg commands
+            if (command.startsWith('leg')) {
+                angleInput.style.display = 'block';
+                angleInput.required = true;
+            } else {
+                angleInput.style.display = 'none';
+                angleInput.required = false;
+            }
+        });
+
+        // Sequence Builder Functions
+        function addToSequence() {
+            if (!isConnected) {
+                alert('Please connect to the robot first');
+                return;
+            }
+
+            const commandSelect = document.getElementById('commandSelect');
+            const angleInput = document.getElementById('angleInput');
+            const delayInput = document.getElementById('delayInput');
+
+            const command = commandSelect.value;
+            const delay = parseInt(delayInput.value) || 1000;
+
+            if (!command) {
+                alert('Please select a command');
+                return;
+            }
+
+            if (command.startsWith('leg')) {
+                const angle = parseFloat(angleInput.value);
+                if (isNaN(angle) || angle < -90 || angle > 90) {
+                    alert('Please enter a valid angle between -90 and 90');
+                    return;
+                }
+                
+                // Parse leg command
+                const legId = parseInt(command.charAt(3));
+                const joint = command.substring(4);
+                
+                currentSequence.push({
+                    type: 'leg',
+                    legId: legId,
+                    joint: joint,
+                    angle: angle,
+                    delay: delay,
+                    displayText: `Leg ${legId} ${joint} ${angle}° (${delay}ms delay)`
+                });
+            } else {
+                currentSequence.push({
+                    type: 'command',
+                    command: command,
+                    delay: delay,
+                    displayText: `${command} (${delay}ms delay)`
+                });
+            }
+
+            updateSequenceDisplay();
+            
+            // Reset inputs
+            commandSelect.value = '';
+            angleInput.style.display = 'none';
+            angleInput.value = '';
+            delayInput.value = '1000';
+        }
+
+        function updateSequenceDisplay() {
+            const sequenceSteps = document.getElementById('sequenceSteps');
+            
+            if (currentSequence.length === 0) {
+                sequenceSteps.innerHTML = '<p class="empty-sequence">No commands in sequence</p>';
+                return;
+            }
+
+            sequenceSteps.innerHTML = '';
+            currentSequence.forEach((step, index) => {
+                const stepDiv = document.createElement('div');
+                stepDiv.className = 'sequence-step';
+                stepDiv.innerHTML = `
+                    <div class="step-info">
+                        <div class="step-command">${index + 1}. ${step.displayText}</div>
+                    </div>
+                    <button class="step-remove" onclick="removeFromSequence(${index})">✕</button>
+                `;
+                sequenceSteps.appendChild(stepDiv);
+            });
+        }
+
+        function removeFromSequence(index) {
+            currentSequence.splice(index, 1);
+            updateSequenceDisplay();
+        }
+
+        function clearSequence() {
+            currentSequence = [];
+            updateSequenceDisplay();
+        }
+
+        async function executeSequence() {
+            if (!isConnected) {
+                alert('Please connect to the robot first');
+                return;
+            }
+
+            if (currentSequence.length === 0) {
+                alert('No commands in sequence');
+                return;
+            }
+
+            if (isExecuting) {
+                alert('Sequence is already executing');
+                return;
+            }
+
+            isExecuting = true;
+            const executeBtn = document.querySelector('.execute-btn');
+            executeBtn.disabled = true;
+            executeBtn.textContent = '⏳ Executing...';
+
+            addToLog(`Starting sequence execution (${currentSequence.length} steps)`);
+
+            try {
+                for (let i = 0; i < currentSequence.length; i++) {
+                    const step = currentSequence[i];
+                    
+                    addToLog(`Executing step ${i + 1}: ${step.displayText}`);
+                    
+                    if (step.type === 'leg') {
+                        socket.emit('robot-command', {
+                            command: 'leg',
+                            legId: step.legId,
+                            joint: step.joint,
+                            angle: step.angle
+                        });
+                    } else {
+                        socket.emit('robot-command', { command: step.command });
+                    }
+
+                    // Wait for the specified delay (except for the last step)
+                    if (i < currentSequence.length - 1) {
+                        await new Promise(resolve => setTimeout(resolve, step.delay));
+                    }
+                }
+                
+                addToLog('Sequence execution completed!');
+            } catch (error) {
+                addToLog(`Sequence execution error: ${error.message}`);
+            } finally {
+                isExecuting = false;
+                executeBtn.disabled = false;
+                executeBtn.textContent = '▶️ Execute';
+            }
+        }
+
+        function saveSequence() {
+            if (currentSequence.length === 0) {
+                alert('No sequence to save');
+                return;
+            }
+
+            const sequenceName = prompt('Enter a name for this sequence:');
+            if (!sequenceName) return;
+
+            const sequenceData = {
+                name: sequenceName,
+                steps: currentSequence,
+                timestamp: new Date().toISOString()
+            };
+
+            localStorage.setItem(`sequence_${sequenceName}`, JSON.stringify(sequenceData));
+            addToLog(`Sequence "${sequenceName}" saved successfully`);
+        }
+
+        function loadSequence() {
+            const savedSequences = [];
+            
+            // Get all saved sequences from localStorage
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith('sequence_')) {
+                    try {
+                        const data = JSON.parse(localStorage.getItem(key));
+                        savedSequences.push({
+                            key: key,
+                            name: data.name,
+                            steps: data.steps.length,
+                            timestamp: data.timestamp
+                        });
+                    } catch (e) {
+                        // Skip invalid entries
+                    }
+                }
+            }
+
+            if (savedSequences.length === 0) {
+                alert('No saved sequences found');
+                return;
+            }
+
+            // Create selection dialog
+            let message = 'Select a sequence to load:\n\n';
+            savedSequences.forEach((seq, index) => {
+                const date = new Date(seq.timestamp).toLocaleDateString();
+                message += `${index + 1}. ${seq.name} (${seq.steps} steps, saved ${date})\n`;
+            });
+
+            const choice = prompt(message + '\nEnter the number:');
+            const choiceNum = parseInt(choice);
+
+            if (choiceNum >= 1 && choiceNum <= savedSequences.length) {
+                const selected = savedSequences[choiceNum - 1];
+                const sequenceData = JSON.parse(localStorage.getItem(selected.key));
+                
+                currentSequence = sequenceData.steps;
+                updateSequenceDisplay();
+                addToLog(`Loaded sequence "${selected.name}" with ${selected.steps} steps`);
+            }
+        }
+
+        function loadPreset(presetName) {
+            clearSequence();
+            
+            switch (presetName) {
+                case 'dance':
+                    currentSequence = [
+                        { type: 'command', command: 'stand', delay: 500, displayText: 'stand (500ms delay)' },
+                        { type: 'leg', legId: 0, joint: 'hip', angle: 30, delay: 300, displayText: 'Leg 0 hip 30° (300ms delay)' },
+                        { type: 'leg', legId: 1, joint: 'hip', angle: -30, delay: 300, displayText: 'Leg 1 hip -30° (300ms delay)' },
+                        { type: 'leg', legId: 2, joint: 'hip', angle: 30, delay: 300, displayText: 'Leg 2 hip 30° (300ms delay)' },
+                        { type: 'leg', legId: 3, joint: 'hip', angle: -30, delay: 500, displayText: 'Leg 3 hip -30° (500ms delay)' },
+                        { type: 'command', command: 'neutral', delay: 1000, displayText: 'neutral (1000ms delay)' }
+                    ];
+                    break;
+                    
+                case 'greeting':
+                    currentSequence = [
+                        { type: 'command', command: 'sit', delay: 500, displayText: 'sit (500ms delay)' },
+                        { type: 'leg', legId: 0, joint: 'knee', angle: 45, delay: 300, displayText: 'Leg 0 knee 45° (300ms delay)' },
+                        { type: 'leg', legId: 0, joint: 'knee', angle: 0, delay: 500, displayText: 'Leg 0 knee 0° (500ms delay)' },
+                        { type: 'leg', legId: 0, joint: 'knee', angle: 45, delay: 300, displayText: 'Leg 0 knee 45° (300ms delay)' },
+                        { type: 'leg', legId: 0, joint: 'knee', angle: 0, delay: 500, displayText: 'Leg 0 knee 0° (500ms delay)' },
+                        { type: 'command', command: 'stand', delay: 1000, displayText: 'stand (1000ms delay)' }
+                    ];
+                    break;
+                    
+                case 'exercise':
+                    currentSequence = [
+                        { type: 'command', command: 'stand', delay: 500, displayText: 'stand (500ms delay)' },
+                        { type: 'command', command: 'sit', delay: 1000, displayText: 'sit (1000ms delay)' },
+                        { type: 'command', command: 'stand', delay: 1000, displayText: 'stand (1000ms delay)' },
+                        { type: 'command', command: 'down', delay: 1000, displayText: 'down (1000ms delay)' },
+                        { type: 'command', command: 'stand', delay: 1000, displayText: 'stand (1000ms delay)' }
+                    ];
+                    break;
+                    
+                case 'wave':
+                    currentSequence = [
+                        { type: 'command', command: 'sit', delay: 500, displayText: 'sit (500ms delay)' },
+                        { type: 'leg', legId: 1, joint: 'knee', angle: 60, delay: 300, displayText: 'Leg 1 knee 60° (300ms delay)' },
+                        { type: 'leg', legId: 1, joint: 'hip', angle: -45, delay: 300, displayText: 'Leg 1 hip -45° (300ms delay)' },
+                        { type: 'leg', legId: 1, joint: 'hip', angle: 45, delay: 500, displayText: 'Leg 1 hip 45° (500ms delay)' },
+                        { type: 'leg', legId: 1, joint: 'hip', angle: -45, delay: 500, displayText: 'Leg 1 hip -45° (500ms delay)' },
+                        { type: 'leg', legId: 1, joint: 'hip', angle: 0, delay: 300, displayText: 'Leg 1 hip 0° (300ms delay)' },
+                        { type: 'leg', legId: 1, joint: 'knee', angle: 0, delay: 500, displayText: 'Leg 1 knee 0° (500ms delay)' },
+                        { type: 'command', command: 'stand', delay: 1000, displayText: 'stand (1000ms delay)' }
+                    ];
+                    break;
+            }
+            
+            updateSequenceDisplay();
+            addToLog(`Loaded "${presetName}" preset with ${currentSequence.length} steps`);
         }
 
         // Initialize
