@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RoboPuppy Controller</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .connection-panel {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 2px solid #e9ecef;
+        }
+
+        .connection-panel h3 {
+            color: #495057;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+
+        .connection-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .port-select {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        select, button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        select {
+            background: white;
+            border: 2px solid #dee2e6;
+            width: 100%;
+        }
+
+        button {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            font-weight: 600;
+            min-width: 120px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .disconnect-btn {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+        }
+
+        .status {
+            margin-top: 15px;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .status.connected {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.disconnected {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .control-panel {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid #e9ecef;
+        }
+
+        .control-panel h3 {
+            color: #495057;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            text-align: center;
+        }
+
+        .basic-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+        }
+
+        .basic-controls button {
+            padding: 15px;
+            font-size: 14px;
+            background: linear-gradient(135deg, #007bff, #0056b3);
+        }
+
+        .leg-controls {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .leg-control {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            border: 2px solid #dee2e6;
+        }
+
+        .leg-control h4 {
+            color: #495057;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .leg-controls-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .joint-control {
+            text-align: center;
+        }
+
+        .joint-control label {
+            display: block;
+            font-size: 12px;
+            color: #6c757d;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .joint-control input {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .joint-control button {
+            width: 100%;
+            padding: 8px;
+            font-size: 12px;
+            background: linear-gradient(135deg, #6f42c1, #5a32a3);
+            margin-top: 8px;
+        }
+
+        .response-panel {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+            border: 2px solid #e9ecef;
+        }
+
+        .response-panel h3 {
+            color: #495057;
+            margin-bottom: 15px;
+        }
+
+        .response-log {
+            background: #212529;
+            color: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+
+        @media (max-width: 768px) {
+            .connection-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .controls-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .leg-controls {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 RoboPuppy Controller</h1>
+            <p>Control your Arduino robot through the web interface</p>
+        </div>
+
+        <div class="content">
+            <!-- Connection Panel -->
+            <div class="connection-panel">
+                <h3>🔌 Connection</h3>
+                <div class="connection-controls">
+                    <div class="port-select">
+                        <select id="portSelect">
+                            <option value="">Select Arduino Port...</option>
+                        </select>
+                    </div>
+                    <button id="refreshPorts">🔄 Refresh</button>
+                    <button id="connectBtn">🔗 Connect</button>
+                    <button id="disconnectBtn" disabled>❌ Disconnect</button>
+                </div>
+                <div id="connectionStatus" class="status disconnected">Disconnected</div>
+            </div>
+
+            <!-- Controls Grid -->
+            <div class="controls-grid">
+                <!-- Basic Controls -->
+                <div class="control-panel">
+                    <h3>🎮 Basic Controls</h3>
+                    <div class="basic-controls">
+                        <button onclick="sendCommand('stand')">Stand</button>
+                        <button onclick="sendCommand('sit')">Sit</button>
+                        <button onclick="sendCommand('walk')">Walk</button>
+                        <button onclick="sendCommand('neutral')">Neutral</button>
+                        <button onclick="sendCommand('down')">Down</button>
+                        <button onclick="sendCommand('help')">Help</button>
+                    </div>
+                </div>
+
+                <!-- Leg Controls -->
+                <div class="control-panel">
+                    <h3>🦵 Leg Controls</h3>
+                    <div class="leg-controls">
+                        <div class="leg-control">
+                            <h4>Leg 0 (Front Left)</h4>
+                            <div class="leg-controls-grid">
+                                <div class="joint-control">
+                                    <label>Hip</label>
+                                    <input type="number" id="leg0Hip" min="-90" max="90" value="0">
+                                    <button onclick="moveLeg(0, 'hip')">Move</button>
+                                </div>
+                                <div class="joint-control">
+                                    <label>Knee</label>
+                                    <input type="number" id="leg0Knee" min="-90" max="90" value="0">
+                                    <button onclick="moveLeg(0, 'knee')">Move</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="leg-control">
+                            <h4>Leg 1 (Front Right)</h4>
+                            <div class="leg-controls-grid">
+                                <div class="joint-control">
+                                    <label>Hip</label>
+                                    <input type="number" id="leg1Hip" min="-90" max="90" value="0">
+                                    <button onclick="moveLeg(1, 'hip')">Move</button>
+                                </div>
+                                <div class="joint-control">
+                                    <label>Knee</label>
+                                    <input type="number" id="leg1Knee" min="-90" max="90" value="0">
+                                    <button onclick="moveLeg(1, 'knee')">Move</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="leg-control">
+                            <h4>Leg 2 (Back Left)</h4>
+                            <div class="leg-controls-grid">
+                                <div class="joint-control">
+                                    <label>Hip</label>
+                                    <input type="number" id="leg2Hip" min="-90" max="90" value="0">
+                                    <button onclick="moveLeg(2, 'hip')">Move</button>
+                                </div>
+                                <div class="joint-control">
+                                    <label>Knee</label>
+                                    <input type="number" id="leg2Knee" min="-90" max="90" value="0">
+                                    <button onclick="moveLeg(2, 'knee')">Move</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="leg-control">
+                            <h4>Leg 3 (Back Right)</h4>
+                            <div class="leg-controls-grid">
+                                <div class="joint-control">
+                                    <label>Hip</label>
+                                    <input type="number" id="leg3Hip" min="-90" max="90" value="0">
+                                    <button onclick="moveLeg(3, 'hip')">Move</button>
+                                </div>
+                                <div class="joint-control">
+                                    <label>Knee</label>
+                                    <input type="number" id="leg3Knee" min="-90" max="90" value="0">
+                                    <button onclick="moveLeg(3, 'knee')">Move</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Response Panel -->
+            <div class="response-panel">
+                <h3>📡 Arduino Response</h3>
+                <div id="responseLog" class="response-log">Waiting for connection...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const socket = io();
+        let isConnected = false;
+
+        // DOM elements
+        const portSelect = document.getElementById('portSelect');
+        const connectBtn = document.getElementById('connectBtn');
+        const disconnectBtn = document.getElementById('disconnectBtn');
+        const refreshBtn = document.getElementById('refreshPorts');
+        const statusDiv = document.getElementById('connectionStatus');
+        const responseLog = document.getElementById('responseLog');
+
+        // Socket events
+        socket.on('robot-response', (data) => {
+            addToLog(`Response: ${data.message}`);
+        });
+
+        socket.on('connect', () => {
+            addToLog('Connected to server');
+        });
+
+        socket.on('disconnect', () => {
+            addToLog('Disconnected from server');
+        });
+
+        // Event listeners
+        refreshBtn.addEventListener('click', refreshPorts);
+        connectBtn.addEventListener('click', connectToRobot);
+        disconnectBtn.addEventListener('click', disconnectFromRobot);
+
+        // Functions
+        async function refreshPorts() {
+            try {
+                const response = await fetch('/api/ports');
+                const data = await response.json();
+                
+                portSelect.innerHTML = '<option value="">Select Arduino Port...</option>';
+                data.ports.forEach(port => {
+                    const option = document.createElement('option');
+                    option.value = port.path;
+                    option.textContent = `${port.path} - ${port.description || 'Unknown'}`;
+                    portSelect.appendChild(option);
+                });
+                
+                addToLog(`Found ${data.ports.length} ports`);
+            } catch (error) {
+                addToLog(`Error refreshing ports: ${error.message}`);
+            }
+        }
+
+        async function connectToRobot() {
+            const port = portSelect.value;
+            if (!port) {
+                alert('Please select a port first');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/connect', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ port })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    isConnected = true;
+                    updateConnectionStatus(true);
+                    addToLog(`Connected to ${port}`);
+                } else {
+                    addToLog(`Connection failed: ${data.message}`);
+                }
+            } catch (error) {
+                addToLog(`Connection error: ${error.message}`);
+            }
+        }
+
+        async function disconnectFromRobot() {
+            try {
+                const response = await fetch('/api/disconnect', {
+                    method: 'POST'
+                });
+
+                const data = await response.json();
+                
+                isConnected = false;
+                updateConnectionStatus(false);
+                addToLog(data.message);
+            } catch (error) {
+                addToLog(`Disconnect error: ${error.message}`);
+            }
+        }
+
+        function updateConnectionStatus(connected) {
+            isConnected = connected;
+            connectBtn.disabled = connected;
+            disconnectBtn.disabled = !connected;
+            portSelect.disabled = connected;
+            
+            if (connected) {
+                statusDiv.textContent = 'Connected';
+                statusDiv.className = 'status connected';
+            } else {
+                statusDiv.textContent = 'Disconnected';
+                statusDiv.className = 'status disconnected';
+            }
+        }
+
+        function sendCommand(command) {
+            if (!isConnected) {
+                alert('Please connect to the robot first');
+                return;
+            }
+
+            socket.emit('robot-command', { command });
+            addToLog(`Sent command: ${command}`);
+        }
+
+        function moveLeg(legId, joint) {
+            if (!isConnected) {
+                alert('Please connect to the robot first');
+                return;
+            }
+
+            const inputId = `leg${legId}${joint.charAt(0).toUpperCase() + joint.slice(1)}`;
+            const angle = parseFloat(document.getElementById(inputId).value);
+            
+            if (isNaN(angle) || angle < -90 || angle > 90) {
+                alert('Please enter a valid angle between -90 and 90');
+                return;
+            }
+
+            socket.emit('robot-command', { 
+                command: 'leg', 
+                legId: legId, 
+                joint: joint, 
+                angle: angle 
+            });
+            
+            addToLog(`Sent: leg ${legId} ${joint} ${angle}`);
+        }
+
+        function addToLog(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            responseLog.textContent += `[${timestamp}] ${message}\n`;
+            responseLog.scrollTop = responseLog.scrollHeight;
+        }
+
+        // Initialize
+        refreshPorts();
+    </script>
+</body>
+</html>
