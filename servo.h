@@ -14,6 +14,8 @@ class Servo {
     float minAngle = -90;  // Servo limits
     float maxAngle = 90;
     bool reverse = false;  // For inverted servos
+    int legId = 0;         // Which leg this servo belongs to (0-3)
+    bool isHip = false;    // True for hip servos, false for knee servos
     
     bool moveServo(float newPos, float speed) {
       // Clamp target position to servo limits
@@ -44,7 +46,22 @@ class Servo {
       return false; // Still moving
     }
     
+    // Apply hardware-specific servo inversions based on leg and joint type
+    float applyHardwareInversion(float angle) {
+      // Leg 3 hip servo is mounted backwards
+      if (legId == 3 && isHip) {
+        return -angle;
+      }
+      // Leg 1 and 3 knee servos are mounted backwards
+      if ((legId == 1 || legId == 3) && !isHip) {
+        return -angle;
+      }
+      return angle;
+    }
+    
     void setPosition(float angle) {
+      // Apply hardware-specific inversions before setting position
+      angle = applyHardwareInversion(angle);
       targetPos = constrain(angle, minAngle, maxAngle);
     }
 };

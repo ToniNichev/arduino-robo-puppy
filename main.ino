@@ -54,11 +54,15 @@ void initializeLegs() {
     legs[i].knee.pin = i * 2;
     legs[i].knee.trim = servoTrims[i * 2];
     legs[i].knee.reverse = servoReverse[i * 2];
+    legs[i].knee.legId = i;
+    legs[i].knee.isHip = false;
     
     // Initialize hip servo (odd pins: 1,3,5,7)
     legs[i].hip.pin = i * 2 + 1;
     legs[i].hip.trim = servoTrims[i * 2 + 1];
     legs[i].hip.reverse = servoReverse[i * 2 + 1];
+    legs[i].hip.legId = i;
+    legs[i].hip.isHip = true;
   }
 }
 
@@ -101,11 +105,13 @@ void sit() {
 }
 
 void down() {
-  for (int i = 0; i < 4; i++) {
-    legs[i].hip.setPosition(45);
-    legs[i].knee.setPosition(30);
-  }
+  legs[0].hip.setPosition(20);
+  legs[1].hip.setPosition(20);  
+
+  legs[2].hip.setPosition(20);
+  legs[3].hip.setPosition(20);    
 }
+
 
 void walk() {
   // Simple alternating gait
@@ -226,15 +232,9 @@ void parseLegCommand(String command) {
     
     if (legId >= 0 && legId < 4) {
       if (joint == "hip") {
-        if(legId == 3) { // handle hardware issue where servo is mounted the wrong way 
-          angle = -angle;
-        }
         legs[legId].hip.setPosition(angle);
         Serial.println("Leg " + String(legId) + " hip set to " + String(angle) + " degrees");
       } else if (joint == "knee") {
-        if(legId == 1 || legId == 3) { // handle hardware issue where servo is mounted the wrong way 
-        angle = -angle;
-        }
         legs[legId].knee.setPosition(angle);
         Serial.println("Leg " + String(legId) + " knee set to " + String(angle) + " degrees");
       } else {
